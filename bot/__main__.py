@@ -119,12 +119,14 @@ async def on_message(message):
 		await bot.delete_message(message)
 		return
 	if "!ping" in message.content:
+		printWithTime("ping")
 		# You say ping
 		pongmsg = await bot.send_message(message.channel, "pong")
 		# I say pong
 		time.sleep(2)
 		await bot.delete_message(message)
 		await bot.delete_message(pongmsg)
+		printWithTime("pong")
 		return
 
 
