@@ -103,11 +103,11 @@ async def on_message(message):
 			await bot.delete_message(botMsg)
 			return
 
-if "!kick" in message.content:
-	# kick author if he is not an admin
-	if not isAdmin(message.author):
-		await kick(message.author)
-		
+	if "!kick" in message.content:
+		# kick author if he is not an admin
+		if not isAdmin(message.author):
+			await kick(message.author)
+			
 		# get mentioned user
 		userID = findID(message.content)
 		if userID is None:
@@ -117,14 +117,16 @@ if "!kick" in message.content:
 		
 		await kick(user)
 		await bot.delete_message(message)
-	return
-if "!ping" in message.content:
-	# You say ping
-	pongmsg = await bot.send_message(message.channel, "pong")
-	# I say pong
-	time.sleep(2)
+		return
+	if "!ping" in message.content:
+		printWithTime("ping")
+		# You say ping
+		pongmsg = await bot.send_message(message.channel, "pong")
+		# I say pong
+		time.sleep(2)
 		await bot.delete_message(message)
 		await bot.delete_message(pongmsg)
+		printWithTime("pong")
 		return
 
 
