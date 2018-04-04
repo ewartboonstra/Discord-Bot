@@ -22,7 +22,10 @@ def findID(text):  # get id from chat
 	id = text[text.find("<") + 2:text.find(">")]
 	if len(id) > 10:
 		return id
-	return None
+	#select jack if no id is given	
+	id = jack
+	printWithTime("No user found. Selecting jack...")		
+	return id
 
 
 def isAdmin(user):
@@ -84,12 +87,7 @@ async def on_message(message):
 		if val in message.content:
 			sleep_time = 6  # tijd dat user gemute is
 			# Find user or mute jack if none found
-			userID = findID(message.content)
-			if userID is None or userID == jack:
-				userID = jack
-				sleep_time = 10
-				printWithTime("No user found. Selecting jack...")
-		
+			userID = findID(message.content)		
 			user = message.server.get_member(userID)
 			
 			# admin clause. kick and mute author of message instead
@@ -112,9 +110,6 @@ async def on_message(message):
 			
 		# get mentioned user
 		userID = findID(message.content)
-		if userID is None:
-			userID = jack
-			printWithTime("No user found. Selecting jack...")
 		user = message.server.get_member(userID)
 		
 		await kick(user)
