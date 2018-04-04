@@ -51,6 +51,9 @@ async def on_ready():
 
 mute = ["!mute", "!bek"]
 
+# second word to keep jack quiet
+smoel=["bek", "muil", "smoel", "hoofd", "klep", "kleppekop", "kop", "snavel"]
+
 
 # mute
 @bot.event
@@ -117,6 +120,13 @@ async def on_message(message):
 		
 		await kick(user)
 		await bot.delete_message(message)
+		return
+	if "jack" in message.content.lower():
+		for val in smoel:
+			if val in message.content.lower():
+				user = message.server.get_member(jack)
+				await kick(user)
+				await bot.delete_message(message)
 		return
 	if "!ping" in message.content:
 		printWithTime("ping")
