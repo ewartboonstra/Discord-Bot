@@ -55,6 +55,27 @@ mute = ["!mute", "!bek"]
 smoel=["bek", "muil", "smoel", "hoofd", "klep", "kleppekop", "kop", "snavel"]
 
 
+async def muteWithTimer(user, sleep_time):
+	printWithTime("muting {0} for {1} seconds".format(user.name, sleep_time))
+	botMsg = await bot.send_message(message.channel, "muting {0} for {1} seconds".format(user.name, sleep_time))
+	
+	# wait and update timer
+	await bot.server_voice_state(user, mute=True)
+	
+	for x in range(0, sleep_time):
+		time.sleep(1)
+		sleep_time = sleep_time - 1
+		newStr = "muting {0} for {1} seconds".format(user.name, sleep_time)
+		await bot.edit_message(botMsg, new_content=newStr)
+	await bot.server_voice_state(user, mute=False)
+	
+	# delete messages
+	printWithTime("unmuted " + user.name)
+	await bot.delete_message(message)
+	await bot.delete_message(botMsg)
+
+
+
 # mute
 @bot.event
 async def on_message(message):
@@ -66,7 +87,7 @@ async def on_message(message):
 			userID = findID(message.content)
 			if userID is None or userID == jack:
 				userID = jack
-				sleep_time = 12
+				sleep_time = 10
 				printWithTime("No user found. Selecting jack...")
 		
 			user = message.server.get_member(userID)
@@ -81,29 +102,7 @@ async def on_message(message):
 	
 			if message.author.id == jack:
 				user = message.author
-			
-			printWithTime("message: " + message.content)
-			printWithTime("author: " + message.author.name)
-			printWithTime("subject: " + user.name)
-			print("")
-			
-			printWithTime("muting {0} for {1} seconds".format(user.name, sleep_time))
-			botMsg = await bot.send_message(message.channel, "muting {0} for {1} seconds".format(user.name, sleep_time))
-			
-			# wait and update timer
-			await bot.server_voice_state(user, mute=True)
-			
-			for x in range(0, sleep_time):
-				time.sleep(1)
-				sleep_time = sleep_time - 1
-				newStr = "muting {0} for {1} seconds".format(user.name, sleep_time)
-				await bot.edit_message(botMsg, new_content=newStr)
-			await bot.server_voice_state(user, mute=False)
-			
-			# delete messages
-			printWithTime("unmuted " + user.name)
-			await bot.delete_message(message)
-			await bot.delete_message(botMsg)
+			muteWithTimer(user, sleep_time)
 			return
 
 	if "!kick" in message.content:
@@ -125,8 +124,7 @@ async def on_message(message):
 		for val in smoel:
 			if val in message.content.lower():
 				user = message.server.get_member(jack)
-				await kick(user)
-				await bot.delete_message(message)
+				muteWithTimer(user, 10)
 		return
 	if "!ping" in message.content:
 		printWithTime("ping")
