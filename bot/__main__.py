@@ -1,6 +1,4 @@
-import discord
 import time
-from discord.ext.commands import Bot
 from discord.ext import commands
 
 jack = "240535173546901504"
@@ -15,122 +13,123 @@ bot = commands.Bot(command_prefix='~', description=description)
 
 
 async def kick(user):
-	await bot.move_member(user, user.server.afk_channel)
+    await bot.move_member(user, user.server.afk_channel)
 
 
-def findID(text):  # get id from chat
-	id = text[text.find("<") + 2:text.find(">")]
-	if len(id) > 10:
-		return id
-	#select jack if no id is given	
-	id = jack
-	printWithTime("No user found. Selecting jack...")		
-	return id
+def find_id(text):  # get id from chat
+    user_id = text[text.find("<") + 2:text.find(">")]
+    if len(user_id) > 10:
+        return id
+    # Select jack if no id is given
+    user_id = jack
+    print_with_time("No user found. Selecting jack...")
+    return user_id
 
 
-def isAdmin(user):
-	for role in user.roles:
-		if role.id == adminID:
-			return True
-	if user.id == ewart:
-		return True
-	return False
+def is_admin(user):
+    for role in user.roles:
+        if role.id == adminID:
+            return True
+    if user.id == ewart:
+        return True
+    return False
 
-def printWithTime(msg):
-	print('{0}: {1}'.format(time.strftime('%X'), msg))
+
+def print_with_time(msg):
+    print('{0}: {1}'.format(time.strftime('%X'), msg))
+
 
 # Print the starting text
 print('---------------')
 print('Jack bot')
 print('---------------')
-printWithTime('Starting jackbot...')
+print_with_time('Starting Jackbot...')
 
 
 @bot.event
 async def on_ready():
-	printWithTime('Jackbot is ready')
-	print()
+    print_with_time('Jackbot is ready')
+    print()
 
 
 mute = ["!mute", "!bek"]
 
 # second word to keep jack quiet
-smoel=["bek", "muil", "smoel", "hoofd", "klep", "kleppekop", "kop", "snavel"]
+trigger_list = ["bek", "muil", "smoel", "hoofd", "klep", "kleppekop", "kop", "snavel"]
 
 
-async def muteWithTimer(user, sleep_time, message):
-	printWithTime("muting {0} for {1} seconds".format(user.name, sleep_time))
-	botMsg = await bot.send_message(message.channel, "muting {0} for {1} seconds".format(user.name, sleep_time))
-	
-	# wait and update timer
-	await bot.server_voice_state(user, mute=True)
-	
-	for x in range(0, sleep_time):
-		time.sleep(1)
-		sleep_time = sleep_time - 1
-		newStr = "muting {0} for {1} seconds".format(user.name, sleep_time)
-		await bot.edit_message(botMsg, new_content=newStr)
-	await bot.server_voice_state(user, mute=False)
-	
-	# delete messages
-	printWithTime("unmuted " + user.name)
-	await bot.delete_message(message)
-	await bot.delete_message(botMsg)
+async def mute_with_timer(user, sleep_time, message):
+    print_with_time("Muting {0} for {1} seconds".format(user.name, sleep_time))
+    bot_msg = await bot.send_message(message.channel, "muting {0} for {1} seconds".format(user.name, sleep_time))
 
+    # wait and update timer
+    await bot.server_voice_state(user, mute=True)
+
+    for x in range(0, sleep_time):
+        time.sleep(1)
+        sleep_time = sleep_time - 1
+        new_string = "Muting {0} for {1} seconds".format(user.name, sleep_time)
+        await bot.edit_message(bot_msg, new_content=new_string)
+    await bot.server_voice_state(user, mute=False)
+
+    # delete messages
+    print_with_time("Un-muted " + user.name)
+    await bot.delete_message(message)
+    await bot.delete_message(bot_msg)
 
 
 # mute
 @bot.event
 async def on_message(message):
-	# MUTE
-	for val in mute:
-		if val in message.content:
-			sleep_time = 6  # tijd dat user gemute is
-			# Find user or mute jack if none found
-			userID = findID(message.content)		
-			user = message.server.get_member(userID)
-			
-			# admin clause. kick and mute author of message instead
-			for role in user.roles:
-				if message.server.role_hierarchy[0].id == role.id:
-					printWithTime("admin is selected. muting author instead.")
-					user = message.author
-					await kick(user)
-					break
-	
-			if message.author.id == jack:
-				user = message.author
-			await muteWithTimer(user, sleep_time, message)
-			return
+    # MUTE
+    for val in mute:
+        if val in message.content:
+            sleep_time = 6  # tijd dat user gemute is
+            # Find user or mute jack if none found
+            user_id = find_id(message.content)
+            user = message.server.get_member(user_id)
 
-	if "!kick" in message.content:
-		# kick author if he is not an admin
-		if not isAdmin(message.author):
-			await kick(message.author)
-			
-		# get mentioned user
-		userID = findID(message.content)
-		user = message.server.get_member(userID)
-		
-		await kick(user)
-		await bot.delete_message(message)
-		return
-	if "jack" in message.content.lower():
-		for val in smoel:
-			if val in message.content.lower():
-				user = message.server.get_member(jack)
-				await muteWithTimer(user, 10, message)
-		return
-	if "!ping" in message.content:
-		printWithTime("ping")
-		# You say ping
-		pongmsg = await bot.send_message(message.channel, "pong")
-		# I say pong
-		time.sleep(2)
-		await bot.delete_message(message)
-		await bot.delete_message(pongmsg)
-		printWithTime("pong")
-		return
+            # admin clause. kick and mute author of message instead
+            for role in user.roles:
+                if message.server.role_hierarchy[0].id == role.id:
+                    print_with_time("admin is selected. muting author instead.")
+                    user = message.author
+                    await kick(user)
+                    break
+
+            if message.author.id == jack:
+                user = message.author
+            await mute_with_timer(user, sleep_time, message)
+            return
+
+    if "!kick" in message.content:
+        # kick author if he is not an admin
+        if not is_admin(message.author):
+            await kick(message.author)
+
+        # get mentioned user
+        user_id = find_id(message.content)
+        user = message.server.get_member(user_id)
+
+        await kick(user)
+        await bot.delete_message(message)
+        return
+    if "jack" in message.content.lower():
+        for val in trigger_list:
+            if val in message.content.lower():
+                user = message.server.get_member(jack)
+                await mute_with_timer(user, 10, message)
+        return
+    if "!ping" in message.content:
+        print_with_time("ping")
+        # You say ping
+        pong_msg = await bot.send_message(message.channel, "pong")
+        # I say pong
+        time.sleep(2)
+        await bot.delete_message(message)
+        await bot.delete_message(pong_msg)
+        print_with_time("pong")
+        return
 
 
 bot.run('NDEzODEwODU4OTAxMzcyOTI5.DWmz9Q.GKamc06EhrLAmea1OjO5Fqe6Qmk')
