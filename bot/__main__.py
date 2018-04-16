@@ -1,11 +1,11 @@
 import time
+
+import discord
+import env
 from discord.ext import commands
 
-jack = "240535173546901504"
-ewart = "230408032041828352"
-
-adminID = "293422460982788096"
-uw2ID = "407247299165814797"
+client = discord.Client()
+jack = env.users['jack']
 
 # Define all variables to be used around the script
 description = '''Zeg in chat mute jack om van die kut soundboard af te zijn'''
@@ -26,12 +26,10 @@ def find_id(text):  # get id from chat
     return user_id
 
 
-def is_admin(user):
-    for role in user.roles:
-        if role.id == adminID:
+def is_admin(message):
+    for role in message.author.roles:
+        if message.server.role_hierarchy[0].id == role.id:
             return True
-    if user.id == ewart:
-        return True
     return False
 
 
@@ -39,16 +37,12 @@ def print_with_time(msg):
     print('{0}: {1}'.format(time.strftime('%X'), msg))
 
 
-# Print the starting text
-print('---------------')
-print('Jack bot')
-print('---------------')
-print_with_time('Starting Jackbot...')
-
-
 @bot.event
 async def on_ready():
     print_with_time('Jackbot is ready')
+    my_game = discord.Game(name='with myself', type=1)
+    print_with_time('loading in status')
+    await bot.change_presence(game=my_game, afk=False)
     print()
 
 
@@ -84,18 +78,17 @@ async def on_message(message):
     # MUTE
     for val in mute:
         if val in message.content:
-            sleep_time = 6  # tijd dat user gemute is
+            sleep_time = 6  # Timeout time
             # Find user or mute jack if none found
             user_id = find_id(message.content)
             user = message.server.get_member(user_id)
 
             # admin clause. kick and mute author of message instead
-            for role in user.roles:
-                if message.server.role_hierarchy[0].id == role.id:
-                    print_with_time("admin is selected. muting author instead.")
-                    user = message.author
-                    await kick(user)
-                    break
+            if is_admin(message):
+                print_with_time("admin is selected. muting author instead.")
+                user = message.author
+                await kick(user)
+                break
 
             if message.author.id == jack:
                 user = message.author
@@ -104,7 +97,7 @@ async def on_message(message):
 
     if "!kick" in message.content:
         # kick author if he is not an admin
-        if not is_admin(message.author):
+        if not is_admin(message):
             await kick(message.author)
 
         # get mentioned user
@@ -132,4 +125,10 @@ async def on_message(message):
         return
 
 
-bot.run('NDEzODEwODU4OTAxMzcyOTI5.DWmz9Q.GKamc06EhrLAmea1OjO5Fqe6Qmk')
+# Print the starting text
+print('---------------')
+print('Jack bot')
+print('---------------')
+print_with_time('Starting Jackbot...')
+
+bot.run(env.bot['key'])
