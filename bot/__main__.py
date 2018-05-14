@@ -26,8 +26,8 @@ def find_id(text):  # get id from chat
     return user_id
 
 
-def is_admin(message):
-    for role in message.author.roles:
+def is_admin(user):
+    for role in user.roles:
         if message.server.role_hierarchy[0].id == role.id:
             return True
     return False
@@ -84,7 +84,7 @@ async def on_message(message):
             user = message.server.get_member(user_id)
 
             # admin clause. kick and mute author of message instead
-            if is_admin(message):
+            if is_admin(user):
                 print_with_time("admin is selected. muting author instead.")
                 user = message.author
                 await kick(user)
@@ -97,13 +97,15 @@ async def on_message(message):
 
     if "!kick" in message.content:
         # kick author if he is not an admin
-        if not is_admin(message):
-            await kick(message.author)
+       
 
         # get mentioned user
         user_id = find_id(message.content)
         user = message.server.get_member(user_id)
 
+		 if not is_admin(message.author):
+            await kick(message.author)
+			
         await kick(user)
         await bot.delete_message(message)
         return
